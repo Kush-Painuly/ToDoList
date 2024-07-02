@@ -1,79 +1,75 @@
-import React, { useState } from "react";
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  addTodo,
+  editTodo,
+  updateTodo,
+  removeTodo,
+  setInputValue
+} from '../redux/action';
 
 const TodoList = () => {
-  const [inputvalue, setInputValue] = useState("");
-  const [todos, setTodos] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
+  const todos = useSelector(state => state.todos);
+  const inputvalue = useSelector(state => state.inputvalue);
+  const editIndex = useSelector(state => state.editIndex);
+  const dispatch = useDispatch();
 
-  const addTodos = () => {
+  const handleAddTodo = () => {
     if (editIndex !== null) {
-      setTodos((tododata) => {
-        const updatedList = [...tododata];
-        updatedList[editIndex] = inputvalue;
-        return updatedList;
-      });
-      setEditIndex(null);
+      dispatch(updateTodo(inputvalue));
     } else {
-      setTodos((tododata) => {
-        const todoList = [...tododata, inputvalue];
-        return todoList;
-      });
+      dispatch(addTodo(inputvalue));
     }
-    setInputValue("");
   };
 
-  const removeTodo = (index) => {
-    setTodos((tododata) => {
-      const filteredList = [...tododata];
-      filteredList.splice(index, 1);
-      return filteredList;
-    });
+  const handleRemoveTodo = (index) => {
+    dispatch(removeTodo(index));
   };
 
-  const EditTodo = (item, index) => {
-    setInputValue(item);
-    setEditIndex(index);
+  const handleEditTodo = (item, index) => {
+    dispatch(editTodo(item, index));
   };
+
   return (
-    <>
-      <div>
-        <div className="flex justify-center mt-5">
-          <input
-            type="text"
-            className="border border-gray-800 rounded w-[20%] p-2"
-            value={inputvalue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-          <button
-            className="border border-green-500 px-9 py-2 mx-2 rounded bg-green-500 text-white"
-            onClick={addTodos}
-          >
-            Add
-          </button>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-20 mt-3">
-          {todos.map((item, index) => {
-            return (
-              <div className="w-[20%] rounded bg-amber-500 p-2 text-center">
-                <h1 className="p-6">{item}</h1>
-                <button
-                  className="cursor-pointer border border-black px-4 py-2 rounded-md hover:bg-black hover:text-white transition delay-100 duration-300 mx-2"
-                  onClick={() => EditTodo(item, index)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="cursor-pointer border border-black px-4 py-2 rounded-md hover:bg-black hover:text-white transition delay-100 duration-300 "
-                  onClick={() => removeTodo(index)}
-                >
-                  Remove
-                </button>
-              </div>
-            );
-          })}
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className='text-4xl text-center p-5 font-extrabold'>ToDo List </h1>
+      <div className="flex justify-center mb-5">
+        <input
+          type="text"
+          className="border border-gray-800 rounded w-full md:w-[50%] lg:w-[30%] xl:w-[20%] p-2"
+          placeholder="Add a todo"
+          value={inputvalue}
+          onChange={(e) => dispatch(setInputValue(e.target.value))}
+        />
+        <button
+          className="ml-2 px-6 py-2 rounded bg-green-500 text-white"
+          onClick={handleAddTodo}
+        >
+          {editIndex !== null ? 'Update' : 'Add'}
+        </button>
       </div>
-    </>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {todos.map((item, index) => (
+          <div key={index} className="bg-yellow-300 rounded p-4 text-center">
+            <h1 className="font-bold mb-2">{item}</h1>
+            <div className="flex justify-center">
+              <button
+                className="mr-2 px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 transition duration-300"
+                onClick={() => handleEditTodo(item, index)}
+              >
+                Edit
+              </button>
+              <button
+                className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-700 transition duration-300"
+                onClick={() => handleRemoveTodo(index)}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
